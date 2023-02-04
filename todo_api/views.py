@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 
 from rest_framework.response import Response
+from rest_framework import generics, views
 from rest_framework.decorators import api_view
 
 from todo.utils import get_object_or_none
@@ -17,7 +18,7 @@ def index(request,**kwargs):
 
 @api_view(['GET'])
 def get_todo_list(request,**kwargs):
-    todo_list = ToDoList.objects.all()
+    todo_list = ToDoList.objects.all().order_by('-id')
     if request.GET.get('category') == 'all':
         todo_list = todo_list
     if request.GET.get('category') == 'active':
@@ -31,7 +32,7 @@ def get_todo_list(request,**kwargs):
 @api_view(['POST'])
 def manage_todo_list(request,**kwargs):
     todo = get_object_or_none(ToDoList,id=kwargs.get('pk'))
-    print(todo)
+    print(request.POST,'POST')
     serializer = ToDoListSerializer(data=request.POST,instance=todo)
     if serializer.is_valid():
         serializer.save()
@@ -41,6 +42,18 @@ def manage_todo_list(request,**kwargs):
 @api_view(['POST'])
 def change_status(request,**kwargs):
     todo = get_object_or_404(ToDoList,id=kwargs.get('pk'))
-    todo.is_completed = ( not todo.is_completed )
+    todo.is_completed = request.POST.get('is_completed')
     todo.save()
-    return Response({'success':True},status=200)
+    return Response(ToDoListSerializer(todo,many=False).data,status=200)
+
+class CreateToDoList(generics.CreateAPIView):
+    queryset = ToDoList.objects.all()
+    serializer_class = ToDoListSerializer
+    
+class StatusChangeView(views.APIView):
+    
+    def post(self,request,*args,**kwargs):
+        todo = get_object_or_404(ToDoList,id=kwargs.get('pk'))
+        todo.is_completed = request.data.get('is_completed')
+        todo.save()
+        return Response(ToDoListSerializer(todo,many=False).data,status=200)
