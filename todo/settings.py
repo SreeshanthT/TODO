@@ -131,3 +131,17 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOWED_ORIGINS = [
+#     "https://example.com",
+#     "https://sub.example.com",
+#     "http://192.168.1.15:3000",
+#     "http://192.168.1.55:3000",
+#     "https://secure.ccavenue.ae",
+#     'https://gava-lm3o36q1i-gava.vercel.app',
+# ]
+CSRF_ALLOW_NULL_ORIGIN = False
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-f3f7.up.railway.app',
+] 
